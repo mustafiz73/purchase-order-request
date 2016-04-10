@@ -1,0 +1,157 @@
+<section>
+      VmInclude:__BASE__/vmiis/Common-Code/frame/excel_v2.html
+</section>
+<script>
+    function F__ID(){
+        //-------------------------------------
+        VmInclude:__BASE__/vmiis/Common-Code/frame/excel_v2.js
+        VmInclude:__BASE__/vmiis/Common-Code/style/ease-in-out.js
+        //-------------------------------------
+        _fields="Order Number|UID,Requester,Contact_Phone,Contact_Email,Description,Reason,Budget,Supplier,Items,GST_Amount,Total_Amount,Files|Documents,Approved by|aS1,Processed by|pS1,Alert";
+        _fields+=",Submit Date|DateTime,Submitted by|Author";
+        //-------------------------------------
+        var show_supplier_flag=0;
+        $('#D__ID').on('load',function(){  _set_req(); _request_data(); })
+        $('#D__ID').on('back',function(){
+            if(show_supplier_flag===0){ _set_req(); _request_data(); }
+            else show_supplier_flag=0;
+        })
+        //-------------------------------------
+        var auto_uid={};
+        _after_change=function(record,C){
+            if(C==='Supplier'){
+                record.Supplier_uid=auto_uid[record.Supplier];
+            }
+        };
+        //-------------------------------------
+        _columns_process=function(columns){
+            columns[0]={data:'UID', readOnly:true};
+            columns[7]={data:'Supplier',type: 'autocomplete',trimDropdown:false,
+                source:function (query, process){
+                    var supplier_pid=$vm.module_list['supplier'][0]
+                    var sqlA="with tb as (select Item=@('Supplier_Name'),Value=UID from [TABLE-"+supplier_pid+"])";
+                    sqlA+=" select top 10 Item,Value from tb where Item like '%'+@S1+'%' ";
+                    $vm.read_record_auto({query:query,process:process,sql:sqlA,minLength:0,callback:function(nv){auto_uid=nv;}});
+                },
+
+                renderer:function(instance, td, row, col, prop, value, cellProperties){
+                if(value===null || value===undefined || value===""){ td.innerHTML=""; return td;}
+            	    $(td).html("<u style='cursor:pointer'>"+value+"</u>");
+            	    $(td).find('u').data('row',row);
+            	    $(td).find('u').on('click',function(){
+                        var row=$(this).data('row');
+                        var uid=_records[row].Supplier_uid;
+                        if(uid===undefined){
+                            alert("No supplier was found.");
+                            return;
+                        }
+                        show_supplier_flag=1;
+                        $vm.load_module_by_name('supplier',$vm.root_layout_content_slot,{sql_where:'uid='+uid});
+                    });
+                    return td;
+                },
+
+            };
+            //-------------------------------------
+            columns[8]={data:'UID',renderer:function(instance, td, row, col, prop, value, cellProperties){
+                if(value===null){ td.innerHTML=""; return td;}
+                td.innerHTML="<u style='cursor:pointer'>Items...</u>";
+                $(td).find('u').on('click',function(){
+                    $vm.load_module_by_name('purchase_order_request_item',$vm.root_layout_content_slot,{sql_where:'puid='+value,puid:value});
+                });
+                return td;
+            }};
+            //-------------------------------------
+            columns[9]={data:'GST_Amount',type: 'numeric',format: '$ 0,000.00', readOnly:true};
+            columns[10]={data:'Total_Amount',type: 'numeric',format: '$ 0,000.00', readOnly:true};
+            //-------------------------------------
+            columns[11]={data:'UID',renderer:function(instance, td, row, col, prop, value, cellProperties){
+                if(value===null || value===undefined || value===""){ td.innerHTML=""; return td;}
+                td.innerHTML="<u style='cursor:pointer'>Files</u>";
+                $(td).find('u').on('click',function(){
+                    $vm.load_module_by_name('purchase_order_request_file',$vm.root_layout_content_slot,{sql_where:'puid='+value,puid:value});
+                });
+                return td;
+            }};
+            //-------------------------------------
+            columns[12]={data:'aS1', renderer:function(instance, td, row, col, prop, value, cellProperties){
+                if(value===null || value===undefined){ td.innerHTML=""; return td;}
+                if(value==="") value="Approving";
+                if(_records.length===0) return td;
+                td.innerHTML="<u style='cursor:pointer'>"+value+"</u>";
+                $(td).find('u').data('uid',_records[row].UID);
+                $(td).find('u').data('rid',_records[row].ID);
+                $(td).find('u').on('click',function(){
+                    var uid=$(this).data("uid");
+                    var rid=$(this).data("rid");
+                    $vm.load_module_by_name('purchase_order_request_approving',$vm.root_layout_content_slot,{sql_where:'puid='+uid,puid:uid,prid:rid});
+                });
+                return td;
+            }};
+            //-------------------------------------
+            columns[13]={data:'pS1', renderer:function(instance, td, row, col, prop, value, cellProperties){
+                if(value===null || value===undefined){ td.innerHTML=""; return td;}
+                if(value==="") value="Processing";
+                if(_records.length===0) return td;
+                var aS1=_records[row].aS1;
+                if(aS1==="") value="";
+                td.innerHTML="<u style='cursor:pointer'>"+value+"</u>";
+                $(td).find('u').data('uid',_records[row].UID);
+                $(td).find('u').data('rid',_records[row].aID);
+                $(td).find('u').on('click',function(){
+                    var uid=$(this).data("uid");
+                    var rid=$(this).data("rid");
+                    $vm.load_module_by_name('purchase_order_request_processing',$vm.root_layout_content_slot,{sql_where:'puid='+uid,puid:uid,prid:rid});
+                });
+                return td;
+            }};
+            //-------------------------------------
+            columns[14]={data:'UID', renderer:function(instance, td, row, col, prop, value, cellProperties){
+                if(value===null || value===undefined || value===""){ td.innerHTML=""; return td;}
+                $(td).html("<u style='cursor:pointer'>Alert</u>");
+                $(td).find('u').data('uid',_records[row].UID);
+                $(td).find('u').on('click',function(){
+                    var uid=$(this).data("uid");
+                    $vm.load_module_by_name('email_to_manager',$vm.root_layout_content_slot,{request_id:uid});
+                });
+            }};
+            //-------------------------------------
+        }
+        //-------------------------------------
+        /*
+        _before_submit=function(record,dbv){
+            return true;
+        };
+        //-------------------------------------
+        _after_submit=function(I,res,n,dbv){
+        };
+        //-------------------------------------
+        _before_change=function(changes,source){
+        };
+        //-------------------------------------
+        _pre_data_process=function (){
+        };
+        //-------------------------------------
+        _new_pre_data_process=function(){
+        };
+        */
+        //-------------------------------------
+        _set_req=function(){
+            var approving_pid=$vm.module_list['purchase_order_request_approving'][0];
+            var processing_pid=$vm.module_list['purchase_order_request_processing'][0];
+
+            var sql_n="select count(ID) from [TABLE-"+_db_pid+"-@S1]";
+            var sql="with tb as (select Information,ID,UID,PUID,DateTime,Author,RowNum=row_number() over (order by ID DESC) from [TABLE-"+_db_pid+"-@S1] )";
+            sql+=",approve as (select aID=id,aS1=S1,aPUID=PUID from [TABLE-"+approving_pid+"]) ";
+            sql+=",process as (select pS1=S1,pPUID=PUID from [TABLE-"+processing_pid+"]) ";
+            sql+=" select ID,UID,Information,aS1,aID,pS1,DateTime,Author,dirty=0, valid=1 ";
+            sql+=" from tb left join approve on UID=aPUID left join process on UID=pPUID";
+            sql+=" where RowNum between @I6 and @I7";
+            _req={cmd:'query_records',sql:sql,sql_n:sql_n,s1:'"'+$('#keyword__ID').val()+'"',I:$('#I__ID').text(),page_size:$('#page_size__ID').val()}
+        }
+        //-------------------------------------
+    }
+</script>
+<style>
+    VmInclude:__BASE__/vmiis/Common-Code/style/default.css
+</style>

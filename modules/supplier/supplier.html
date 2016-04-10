@@ -1,0 +1,50 @@
+<section>
+      VmInclude:__BASE__/vmiis/Common-Code/frame/excel_v2.html
+</section>
+<script>
+    function F__ID(){
+        //-------------------------------------
+        VmInclude:__BASE__/vmiis/Common-Code/frame/excel_v2.js
+        VmInclude:__BASE__/vmiis/Common-Code/style/ease-in-out.js
+        //-------------------------------------
+        _fields="Supplier_Name,Contact_Name,Address,Suburb,Postcode,State,Telephone,Mobilephone,Fax,Email,Web,Additional_Information";
+        _fields+=",Submit Date|DateTime,Submitted by|Author";
+        //-------------------------------------
+        $('#D__ID').on('load',function(){  _set_req(); _request_data(); })
+        //-------------------------------------
+        _before_change=function(changes,source){
+            _process_postcode(changes,source,'Suburb',3,'Postcode',4,'State',5);
+        };
+        //-------------------------------------
+        _columns_process=function(columns){
+            columns[3]={data:'Suburb',type: 'autocomplete',trimDropdown:false, source:function(query, process){
+            	vm_ajax({'cmd':'auto','mtd':'suburb','p1':query},function(c){
+        			process($.parseJSON(c.ret));
+            	});
+            }};
+            //-------------------------------------
+            columns[4]={data:'Postcode',type: 'autocomplete',trimDropdown:false, source:function(query, process){
+            	vm_ajax({'cmd':'auto','mtd':'postcode','p1':query},function(c){
+        			process($.parseJSON(c.ret));
+            	});
+            }};
+            //-------------------------------------
+        }
+        //-------------------------------------
+        _set_req=function(){
+            //-------------------
+            $('#new__ID').hide();
+            $('#save__ID').hide();
+            if($vm.vm['__ID'].op.sql_where!==undefined){
+                $('#new__ID').show();
+                $('#save__ID').show();
+            }
+            //-------------------
+            _set_req_with_sql_where();
+        }
+        //-------------------------------------
+    }
+</script>
+<style>
+    VmInclude:__BASE__/vmiis/Common-Code/style/default.css
+</style>
