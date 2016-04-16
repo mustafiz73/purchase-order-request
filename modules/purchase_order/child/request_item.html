@@ -43,19 +43,17 @@
                 return false;
             }
             var v;
-            dbv.V1='0'; v=record.Sub_Total; if(v!=='') dbv.V1=v.toFixed(2);
+            dbv.V1='0'; v=record.Sub_Total; if(v!=='') dbv.V1=parseFloat(v).toFixed(2);
             dbv.V2='0'; v=record.Qty;       if(v!=='') dbv.V2=v;
             dbv.V3='0'; v=record.Price;     if(v!=='') dbv.V3=v;
             dbv.S1=record.Item_Code;
             dbv.B1='0'; if(record.GST===true) dbv.B1='1';
             dbv.PPID=parent_pid;
             dbv.PUID=puid;
-
             jQuery.ajaxSetup({async:false});
             var req_data={cmd:"modify_record_by_ppid_and_puid",ppid:parent_pid,puid:puid,data:{GST_Amount:'-1',Total_Amount:'-1'},dbv:{V1:'-1',V2:'-1'} };
             $VmAPI.request({data:req_data,callback:function(res){}});
             jQuery.ajaxSetup({async:true});
-
             return true;
         };
         //-------------------------------------
@@ -137,7 +135,7 @@
             //-------------------
             $('#new__ID').hide();
             $('#save__ID').hide();
-            if($vm.vm['__ID'].op.sql_where!==undefined){
+            if($vm.vm['__ID'].op.sql_where!==""){
                 $('#new__ID').show();
                 $('#save__ID').show();
             }

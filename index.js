@@ -4,10 +4,10 @@ $vm.module_list={
     navigation:                  ['--------','.../modules/frame/navigation.html','2'],
 
     purchase_order_request:             ['20007418','.../modules/purchase_order/request.html','2'],
-    purchase_order_request_item:        ['20007419','.../modules/purchase_order/request_item.html','2'],
-    purchase_order_request_file:        ['20007422','.../modules/purchase_order/request_file.html','2'],
-    purchase_order_request_approving:   ['20007420','.../modules/purchase_order/request_approving.html','2'],
-    purchase_order_request_processing:  ['20007421','.../modules/purchase_order/request_processing.html','2'],
+    purchase_order_request_item:        ['20007419','.../modules/purchase_order/child/request_item.html','2'],
+    purchase_order_request_file:        ['20007422','.../modules/purchase_order/child/request_file.html','2'],
+    purchase_order_request_approving:   ['20007420','.../modules/purchase_order/child/request_approving.html','2'],
+    purchase_order_request_processing:  ['20007421','.../modules/purchase_order/child/request_processing.html','2'],
 
     supplier:                           ['20003839','.../modules/supplier/supplier.html','2'],
 

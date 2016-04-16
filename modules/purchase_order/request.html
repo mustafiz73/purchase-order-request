@@ -8,7 +8,7 @@
         VmInclude:__BASE__/vmiis/Common-Code/style/ease-in-out.js
         //-------------------------------------
         _fields="Order Number|UID,Requester,Contact_Phone,Contact_Email,Description,Reason,Budget,Supplier,Items,GST_Amount,Total_Amount,Files|Documents,Approved by|aS1,Processed by|pS1,Alert";
-        _fields+=",Submit Date|DateTime,Submitted by|Author";
+        _fields+=",Submit Date|DateTime,Submitted by|Author,Hidden|Supplier_uid";
         //-------------------------------------
         var show_supplier_flag=0;
         $('#D__ID').on('load',function(){  _set_req(); _request_data(); })
@@ -117,24 +117,6 @@
             }};
             //-------------------------------------
         }
-        //-------------------------------------
-        /*
-        _before_submit=function(record,dbv){
-            return true;
-        };
-        //-------------------------------------
-        _after_submit=function(I,res,n,dbv){
-        };
-        //-------------------------------------
-        _before_change=function(changes,source){
-        };
-        //-------------------------------------
-        _pre_data_process=function (){
-        };
-        //-------------------------------------
-        _new_pre_data_process=function(){
-        };
-        */
         //-------------------------------------
         _set_req=function(){
             var approving_pid=$vm.module_list['purchase_order_request_approving'][0];
